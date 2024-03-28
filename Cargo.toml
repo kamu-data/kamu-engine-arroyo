@@ -1,0 +1,77 @@
+[package]
+name = "kamu-engine-arroyo"
+version = "0.0.0"
+authors = ["Kamu Data Inc. <info@kamu.dev>"]
+license-file = "LICENSE.txt"
+edition = "2021"
+publish = false
+
+
+[lib]
+doctest = false
+
+
+[dependencies]
+# Kamu
+internal-error = { git = "https://github.com/kamu-data/kamu-cli", tag = "v0.166.1", version = "0.166.1", default-features = false }
+opendatafabric = { git = "https://github.com/kamu-data/kamu-cli", tag = "v0.166.1", version = "0.166.1", default-features = false }
+# internal-error = { git = "https://github.com/kamu-data/kamu-cli", version = "0.150.0", branch = "feature/unified-schema", default-features = false }
+# opendatafabric = { git = "https://github.com/kamu-data/kamu-cli", version = "0.150.0", branch = "feature/unified-schema", default-features = false }
+
+# Egine
+arroyo-sql = { git = "https://github.com/ArroyoSystems/arroyo", branch = "master", default-features = false, features = [] }
+# datafusion = "34"
+
+# Utils
+async-trait = "0.1"
+chrono = "0.4"
+indoc = "2"
+thiserror = { version = "1", default-features = false }
+tokio = { version = "1", default-features = false, features=[] }
+tokio-stream = "0.1"
+tonic = "0.10"
+tracing = "0.1"
+tracing-bunyan-formatter = "0.3"
+tracing-log = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+
+[dev-dependencies]
+env_logger = "0.11"
+pretty_assertions = "1"
+tempfile = "3"
+test-log = { version = "0.2", features = ["trace"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+
+# Emit the line info tables for our crates to produce useful crash reports and backtraces.
+# We don't emit info for dependencies as this significantly increases binary size.
+# See: https://doc.rust-lang.org/cargo/reference/profiles.html#debug
+[profile.release.package]
+# datafusion = { debug = 1 }
+opendatafabric = { debug = 1 }
+kamu-engine-arroyo = { debug = 1 }
+
+
+[profile.ci]
+inherits = "dev"
+# CI builds often are closer to from-scratch builds. Incremental adds an extra
+# dependency-tracking overhead and significantly increases the amount of IO and
+# the size of ./target, which make caching less effective
+# See: https://matklad.github.io/2021/09/04/fast-rust-builds.html#CI-Workflow
+incremental = false
+# Line info is enough to get good backtraces in CI - we don't need the
+# full debugging symbols that are only useful when attaching a debugger.
+debug = 1
+
+
+# TODO: These overrides are inherited from Arroyo and must be kept in sync
+# Source: https://github.com/ArroyoSystems/arroyo/blob/555db2b2a2f3a1a812f5850618e5e19e5ea50d30/Cargo.toml#L47-L54
+[patch.crates-io]
+typify = { git = 'https://github.com/ArroyoSystems/typify.git', branch = 'arroyo' }
+parquet = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = '46.0.0/parquet_bytes'}
+arrow = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = '46.0.0/parquet_bytes'}
+arrow-buffer = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = '46.0.0/parquet_bytes'}
+arrow-array = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = '46.0.0/parquet_bytes'}
+arrow-schema = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = '46.0.0/parquet_bytes'}
+object_store = {git = 'https://github.com/ArroyoSystems/arrow-rs', branch = 'object_store/put_part_api'}
